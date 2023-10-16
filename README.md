@@ -1,47 +1,63 @@
-# Astro Starter Kit: Minimal
+# Clerk OAuth example with Lucia and Astro
 
-```sh
-npm create astro@latest -- --template minimal
+For @bholmesdev :D. The schema should be exactly the same as the one you did in your previous stream (I think - check the user attributes). Both Lucia and Drizzle supports Cloudflare D1, good luck!
+
+## Setup Clerk
+
+Create a new Clerk application. Before clicking "Create application," check what auth methods you want to use (for Github, you have to click "Show 20 more"). Store the `CLERK_SECRET_KEY` (it will be hidden in the web dashboard).
+
+### 1. Create new OAuth application
+
+Send a CURL request to create a new OAuth application. **Make sure to update `<CLERK_SECRET_KEY>` and `"name"`.** Optionally update `"callback_url"` if you'd like to change the routes.
+
+**HIDE THIS PART SINCE IT WILL EXPOSE YOUR SECRET IN THE RESPONSE!**
+
+```
+curl -X POST https://api.clerk.com/v1/oauth_applications \
+   -H "Authorization: Bearer <CLERK_SECRET_KEY>" \
+   -H "Content-Type: application/json" \
+   -d '{"callback_url":"http://localhost:4321/login/clerk/callback", "name": "test"}'
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+If you mess up, you can send another request (the response will be different every time)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### 2. Setup `.env`
 
-## 🚀 Project Structure
+The JSON response should look something like this:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```json
+{
+  "object": "oauth_application",
+  "id": "",
+  "instance_id": "",
+  "name": "test",
+  "client_id": "",
+  "client_secret": "",
+  "public": false,
+  "scopes": "profile email",
+  "callback_url": "http://localhost:4321/login/clerk/callback",
+  "authorize_url": "",
+  "token_fetch_url": "",
+  "user_info_url": "",
+  "created_at": 1697465038088,
+  "updated_at": 1697465038088
+}
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Move them to `.env`:
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```bash
+CLERK_CLIENT_ID=""
+CLERK_CLIENT_SECRET=""
+CLERK_USER_INFO_ENDPOINT=""
+CLERK_AUTHORIZE_ENDPOINT=""
+CLERK_TOKEN_ENDPOINT=""
+CLERK_CALLBACK_URL=""
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
 
-## 🧞 Commands
+## Before deploying
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+1. This example uses SQLite in memory. Lucia provides a [D1 adapter](https://lucia-auth.com/database-adapters/cloudflare-d1/), since it's SQL, you can use the SQL statements in `schema.sql` to set it up. Remember that you cannot store booleans with D1 (use integers). Drizzle also [supports D1](https://orm.drizzle.team/docs/quick-sqlite/d1)
+2. This example uses the Node.js Astro adapter
+3. Create a new Clerk OAuth application (via CURL) but **update the callback_url to `https://example.com/login/clerk/callback`**

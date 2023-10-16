@@ -1,8 +1,8 @@
 ---
-import "../app.css";
+import "../../app.css";
 
 const session = await Astro.locals.auth.validate();
-if (!session) return Astro.redirect("/login", 302);
+if (session) return Astro.redirect("/", 302); // redirect to profile page
 ---
 
 <html lang="en">
@@ -14,11 +14,7 @@ if (!session) return Astro.redirect("/login", 302);
 		<title>Clerk OAuth with Lucia</title>
 	</head>
 	<body>
-		<h1>Profile</h1>
-		<p>User id: {session.user.userId}</p>
-		<p>Username: {session.user.username}</p>
-		<form method="post" action="/logout">
-			<input type="submit" value="Sign out" />
-		</form>
+		<h1>Sign in</h1>
+		<a href="/login/clerk">Sign in with Clerk</a>
 	</body>
 </html>
